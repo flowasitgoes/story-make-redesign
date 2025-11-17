@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getStory } from '../../../../backend/src/services/stories';
-import { listProposals } from '../../../../backend/src/services/proposals';
+import { getStory } from '../../lib/services/stories';
+import { listProposals } from '../../lib/services/proposals';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');

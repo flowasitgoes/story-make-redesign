@@ -1,4 +1,4 @@
-import { Namespace } from 'socket.io';
+import type { Namespace } from '../types/socket-io';
 import { Page, Story } from '../types/models';
 import { paths, readJson, writeJson } from './storage';
 import { listProposals } from './proposals';

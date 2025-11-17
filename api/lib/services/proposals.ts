@@ -1,4 +1,4 @@
-import { Namespace } from 'socket.io';
+import type { Namespace } from '../types/socket-io';
 import { paths, readJson, writeJson } from './storage';
 import { Proposal, Page } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';

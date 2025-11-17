@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { rejectProposal } from '../../../../backend/src/services/proposals';
+import { rejectProposal } from '../../lib/services/proposals';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');

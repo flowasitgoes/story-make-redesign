@@ -32,7 +32,7 @@ export class KVStorage {
       return null;
     }
     try {
-      const value = await this.kv.get<T>(this.getKey(key));
+      const value = await this.kv.get(this.getKey(key)) as T | null;
       return value;
     } catch (error) {
       console.error(`KV get error for key ${key}:`, error);

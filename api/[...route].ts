@@ -23,22 +23,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // 解析路由路径
+    // Vercel catch-all 路由会把路径段放在 req.query.route，但我们也从 URL 解析作为备用
     let path: string[] = [];
-    if (req.query.route) {
+    
+    console.log(`[${requestId}] Raw query.route:`, req.query.route);
+    console.log(`[${requestId}] Raw req.url:`, req.url);
+    
+    // 方法 1: 从 URL 解析（最可靠）
+    if (req.url) {
+      // 移除查询字符串和 /api 前缀
+      const cleanUrl = req.url.split('?')[0];
+      const urlPath = cleanUrl.replace(/^\/api\/?/, '').split('/').filter(Boolean);
+      if (urlPath.length > 0) {
+        path = urlPath;
+      }
+    }
+    
+    // 方法 2: 从 req.query.route 获取（Vercel catch-all 路由的标准方式）
+    if (path.length === 0 && req.query.route) {
       if (Array.isArray(req.query.route)) {
+        // 如果是数组，直接使用
         path = req.query.route as string[];
       } else {
-        path = [req.query.route as string];
+        // 如果是字符串，需要处理
+        const routeStr = String(req.query.route);
+        // 移除查询字符串部分（如果有）
+        const cleanRoute = routeStr.split('?')[0].split('&')[0];
+        // 按 '/' 分割路径
+        path = cleanRoute ? cleanRoute.split('/').filter(Boolean) : [];
       }
-    } else if (req.url) {
-      // 备用方案：从 URL 解析
-      const urlPath = req.url.replace(/^\/api\/?/, '').split('/').filter(Boolean);
-      path = urlPath;
     }
+    
     const route = path.join('/');
 
-    console.log(`[${requestId}] Parsed path:`, path);
-    console.log(`[${requestId}] Route:`, route);
+    console.log(`[${requestId}] Parsed path array:`, path);
+    console.log(`[${requestId}] Final route string:`, route);
 
     // GET /api/stories
     if (req.method === 'GET' && route === 'stories') {

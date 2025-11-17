@@ -236,6 +236,13 @@ import { AudioService } from '../services/audio.service';
       inset: 0;
       background: rgba(255, 255, 255, 0.3);
       border-radius: inherit;
+      border: 2px solid transparent;
+      transition: all 0.35s;
+    }
+    
+    .liquid-glass-wrapper:hover .liquidGlass-tint {
+      border-color: rgba(113, 110, 239, 0.8);
+      box-shadow: 0 0 0.5em 0em rgba(113, 110, 239, 0.6);
     }
     
     .liquidGlass-shine {

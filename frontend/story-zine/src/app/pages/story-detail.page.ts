@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiService, Page, Story, Proposal } from '../services/api.service';
 import { SocketService } from '../services/socket.service';
@@ -10,13 +10,16 @@ import { AudioService } from '../services/audio.service';
 @Component({
   standalone: true,
   selector: 'app-story-detail',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   template: `
     <div class="wrap" *ngIf="story">
       <aside>
         <h3 class="story-title">
           <span class="emoji">📖</span>
           {{ story?.title }}
+          <a [routerLink]="['/']" class="back-link">
+            < back
+          </a>
         </h3>
         <nav>
           <button [class.active]="currentPage===1" (click)="switchPage(1, $event)" class="page-btn">
@@ -152,7 +155,7 @@ import { AudioService } from '../services/audio.service';
       width:240px; 
       border-right:2px solid var(--color-gray); 
       padding-right:20px; 
-      background: var(--color-white);
+      background: conic-gradient(from 45deg, rgb(252, 142, 197) 0deg, rgb(255, 141, 211) 90deg, rgb(255, 161, 216) 180deg, rgb(255, 193, 210) 270deg, rgb(255, 224, 195) 360deg);
       padding: 20px;
       border-radius: var(--radius-medium);
       box-shadow: var(--shadow-sm);
@@ -169,11 +172,35 @@ import { AudioService } from '../services/audio.service';
       gap: 8px;
       padding-bottom: 16px;
       border-bottom: 2px solid var(--color-gray);
+      position: relative;
     }
     
     .story-title .emoji {
       font-size: 24px;
       animation: float 3s ease-in-out infinite;
+    }
+    
+    .back-link {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text);
+      text-decoration: none;
+      padding: 4px 12px;
+      border-radius: var(--radius-small);
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: all var(--transition-normal);
+      display: flex;
+      align-items: center;
+    }
+    
+    .back-link:hover {
+      background: rgba(255, 255, 255, 0.5);
+      transform: translateX(-50%) translateX(-2px);
     }
     
     nav { 
@@ -241,7 +268,7 @@ import { AudioService } from '../services/audio.service';
     
     .cute-button-export {
       width: 100%;
-      background: linear-gradient(135deg, var(--color-pink-bright) 0%, var(--color-blue) 100%);
+      background: conic-gradient(from 45deg, rgb(65, 89, 208) 0deg, rgb(65, 89, 208) 120deg, rgb(105, 169, 123) 120deg, rgb(71, 235, 235) 240deg, rgb(148, 93, 183) 240deg, rgb(148, 93, 183) 360deg);
       color: var(--color-white);
       border-radius: var(--radius-large);
       padding: 12px 20px;
@@ -258,11 +285,13 @@ import { AudioService } from '../services/audio.service';
     .cute-button-export:hover:not(:disabled) {
       transform: translateY(-2px);
       box-shadow: var(--shadow-hover);
+      filter: brightness(1.1);
     }
     
     main { 
       flex:1; 
-      background: var(--color-white);
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid #666;
       padding: 24px;
       border-radius: var(--radius-medium);
       box-shadow: var(--shadow-md);

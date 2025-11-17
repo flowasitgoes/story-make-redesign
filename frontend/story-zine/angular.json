@@ -35,6 +35,11 @@
                 "glob": "**/*",
                 "input": "src/audio",
                 "output": "/audio"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/background_photo",
+                "output": "/background_photo"
               }
             ],
             "styles": [
@@ -101,6 +106,11 @@
                 "glob": "**/*",
                 "input": "src/audio",
                 "output": "/audio"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/background_photo",
+                "output": "/background_photo"
               }
             ],
             "styles": [

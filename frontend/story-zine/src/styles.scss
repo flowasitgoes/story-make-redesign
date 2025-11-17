@@ -58,11 +58,30 @@ body {
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, var(--color-pink-light) 0%, var(--color-yellow-light) 100%);
+  /* 背景图片 - 像手机壁纸一样 */
+  background-image: url('/background_photo/01.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   background-attachment: fixed;
+  /* 添加半透明遮罩层，确保内容可读性 */
+  position: relative;
   min-height: 100vh;
   color: var(--color-text);
   line-height: 1.6;
+}
+
+/* 添加背景遮罩层，让内容更清晰可读（降低不透明度让背景更明显） */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 245, 245, 0.4);
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* 全局按钮基础样式 */

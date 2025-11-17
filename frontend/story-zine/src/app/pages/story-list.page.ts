@@ -12,29 +12,39 @@ import { AudioService } from '../services/audio.service';
   template: `
     <div class="container">
       <h1 class="page-title">
-        <span class="emoji">📚</span>
-        作品列表
+        <span class="emoji">🖋️</span>
+        共創小說
       </h1>
-      <form (ngSubmit)="create()" class="create-form">
-        <input [(ngModel)]="title" name="title" placeholder="✨ 輸入標題" required class="cute-input" />
-        <button type="submit" class="cute-button-primary" [class.click-animate]="isCreating" (click)="onCreateClick($event)">
-          <span class="emoji">✨</span>
-          建立新作品
-        </button>
+      <form (ngSubmit)="create()" class="create-form glass-container glass-container--rounded">
+        <div class="glass-filter"></div>
+        <div class="glass-overlay"></div>
+        <div class="glass-specular"></div>
+        <div class="glass-content">
+          <input [(ngModel)]="title" name="title" placeholder="✨ 輸入標題" required class="cute-input" />
+          <button type="submit" class="cute-button-primary" [class.click-animate]="isCreating" (click)="onCreateClick($event)">
+            <span class="emoji">✨</span>
+            建立新作品
+          </button>
+        </div>
       </form>
       <div class="list">
-        <a class="item" *ngFor="let s of stories; let i = index" [routerLink]="['/stories', s.id]" (click)="onItemClick($event)">
-          <div class="item-number">{{ i + 1 }}</div>
-          <div class="item-content">
-            <div class="title">{{ s.title || '未命名作品' }}</div>
-            <div class="meta">
-              <span class="status-badge" [ngClass]="'status-' + s.status">
-                {{ s.status === 'active' ? '進行中' : s.status === 'completed' ? '已完成' : s.status }}
-              </span>
-              <span class="date">📅 {{ s.createdAt | date:'short' }}</span>
+        <a class="item liquid-glass-wrapper" *ngFor="let s of stories; let i = index" [routerLink]="['/stories', s.id]" (click)="onItemClick($event)">
+          <div class="liquidGlass-effect"></div>
+          <div class="liquidGlass-tint"></div>
+          <div class="liquidGlass-shine"></div>
+          <div class="liquidGlass-text">
+            <div class="item-number">{{ i + 1 }}</div>
+            <div class="item-content">
+              <div class="title">{{ s.title || '未命名作品' }}</div>
+              <div class="meta">
+                <span class="status-badge" [ngClass]="'status-' + s.status">
+                  {{ s.status === 'active' ? '進行中' : s.status === 'completed' ? '已完成' : s.status }}
+                </span>
+                <span class="date">📅 {{ s.createdAt | date:'short' }}</span>
+              </div>
             </div>
+            <div class="item-arrow">→</div>
           </div>
-          <div class="item-arrow">→</div>
         </a>
         <div class="empty-state" *ngIf="stories.length === 0">
           <div class="empty-emoji">📖</div>
@@ -68,33 +78,90 @@ import { AudioService } from '../services/audio.service';
       animation: float 3s ease-in-out infinite;
     }
     
-    .create-form { 
-      display: flex; 
-      gap: 12px; 
-      margin: 0 0 30px;
-      background: var(--color-white);
+    /* Glass Container Styles */
+    .glass-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: transparent;
+      border-radius: 2rem;
+      overflow: hidden;
+      box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+    }
+    
+    .glass-container--rounded {
+      border-radius: 3rem;
+    }
+    
+    .glass-filter,
+    .glass-overlay,
+    .glass-specular {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+    }
+    
+    .glass-filter {
+      z-index: 0;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      filter: url(#lensFilter) saturate(120%) brightness(1.15);
+    }
+    
+    .glass-overlay {
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.25);
+    }
+    
+    .glass-specular {
+      z-index: 2;
+      box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.75),
+        inset 0 0 5px rgba(255, 255, 255, 0.75);
+      pointer-events: none;
+    }
+    
+    .glass-content {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      flex: 1 1 auto;
+      align-items: center;
+      gap: 12px;
       padding: 20px;
-      border-radius: var(--radius-medium);
-      box-shadow: var(--shadow-md);
+      width: 100%;
+    }
+    
+    .create-form { 
+      margin: 0 0 30px;
     }
     
     .cute-input {
       flex: 1;
       padding: 14px 18px;
-      border: 2px solid var(--color-gray);
+      border: 2px solid rgba(255, 255, 255, 0.3);
       border-radius: var(--radius-small);
       font-size: 16px;
-      background: var(--color-white);
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: var(--color-text);
       transition: all var(--transition-normal);
     }
     
+    .cute-input::placeholder {
+      color: rgba(0, 0, 0, 0.6);
+    }
+    
     .cute-input:focus {
-      border-color: var(--color-pink-bright);
-      box-shadow: 0 0 0 4px rgba(255, 107, 157, 0.15);
+      border-color: rgba(255, 255, 255, 0.6);
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.3);
+      outline: none;
     }
     
     .cute-button-primary {
-      background: linear-gradient(135deg, var(--color-pink-bright) 0%, var(--color-blue) 100%);
+      background: linear-gradient(to right, rgb(119, 161, 211) 0%, rgb(73, 174, 173) 51%, rgb(119, 161, 211) 100%);
       color: var(--color-white);
       border-radius: var(--radius-large);
       padding: 14px 28px;
@@ -106,12 +173,20 @@ import { AudioService } from '../services/audio.service';
       gap: 6px;
       white-space: nowrap;
       transition: all var(--transition-normal);
+      /* 移除毛玻璃效果，使用实色背景 */
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      opacity: 1;
+      position: relative;
+      z-index: 10;
     }
     
     .cute-button-primary:hover:not(:disabled) {
       transform: translateY(-2px);
       box-shadow: var(--shadow-hover);
-      background: linear-gradient(135deg, #FF5A8A 0%, #3EB8B0 100%);
+      background: linear-gradient(to right, rgb(119, 161, 211) 0%, rgb(73, 174, 173) 51%, rgb(119, 161, 211) 100%);
+      filter: brightness(1.1);
+      opacity: 1;
     }
     
     .list {
@@ -120,48 +195,74 @@ import { AudioService } from '../services/audio.service';
       gap: 16px;
     }
     
-    .item { 
+    /* Liquid Glass 效果 */
+    .liquid-glass-wrapper {
+      position: relative;
+      display: flex;
+      font-weight: 600;
+      overflow: hidden;
+      color: var(--color-text);
+      cursor: pointer;
+      box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+      border: none;
+      padding: 20px 24px;
+      border-radius: var(--radius-medium);
+      text-decoration: none;
+    }
+    
+    .liquid-glass-wrapper:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.25), 0 0 30px rgba(0, 0, 0, 0.15);
+      border-radius: var(--radius-large);
+      padding: 22px 26px;
+    }
+    
+    .liquidGlass-effect {
+      position: absolute;
+      z-index: 0;
+      inset: 0;
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      filter: url(#glass-distortion);
+      overflow: hidden;
+      isolation: isolate;
+      border-radius: inherit;
+    }
+    
+    .liquidGlass-tint {
+      z-index: 1;
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: inherit;
+    }
+    
+    .liquidGlass-shine {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      overflow: hidden;
+      box-shadow: inset 2px 2px 1px 0 rgba(255, 255, 255, 0.6),
+        inset -1px -1px 1px 1px rgba(255, 255, 255, 0.4);
+      border-radius: inherit;
+      pointer-events: none;
+    }
+    
+    .liquidGlass-text {
+      z-index: 3;
+      position: relative;
       display: flex;
       align-items: center;
       gap: 16px;
-      padding: 20px 24px;
-      background: var(--color-white);
-      border: 2px solid var(--color-gray);
-      border-radius: var(--radius-medium);
-      text-decoration: none;
-      color: inherit;
-      transition: all var(--transition-normal);
-      box-shadow: var(--shadow-sm);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .item::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background: linear-gradient(180deg, var(--color-pink-bright) 0%, var(--color-blue) 100%);
-      opacity: 0;
-      transition: opacity var(--transition-normal);
-    }
-    
-    .item:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-lg);
-      border-color: var(--color-pink-bright);
-    }
-    
-    .item:hover::before {
-      opacity: 1;
+      width: 100%;
+      color: var(--color-text);
     }
     
     .item-number {
       width: 40px;
       height: 40px;
-      background: linear-gradient(135deg, var(--color-pink-bright) 0%, var(--color-blue) 100%);
+      background: conic-gradient(from 45deg, rgb(187, 197, 184) 0deg, rgb(187, 197, 184) 72deg, rgb(164, 146, 180) 72deg, rgb(164, 146, 180) 144deg, rgb(135, 101, 166) 144deg, rgb(135, 101, 166) 216deg, rgb(103, 80, 145) 216deg, rgb(103, 80, 145) 288deg, rgb(75, 91, 116) 288deg, rgb(75, 91, 116) 360deg);
       color: var(--color-white);
       border-radius: 50%;
       display: flex;
@@ -226,7 +327,7 @@ import { AudioService } from '../services/audio.service';
       flex-shrink: 0;
     }
     
-    .item:hover .item-arrow {
+    .liquid-glass-wrapper:hover .item-arrow {
       transform: translateX(4px);
     }
     

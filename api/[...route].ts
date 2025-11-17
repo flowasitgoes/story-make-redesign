@@ -78,20 +78,46 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // POST /api/stories
     if (req.method === 'POST' && route === 'stories') {
       console.log(`[${requestId}] Handling POST /api/stories`);
+      console.log(`[${requestId}] Request body:`, JSON.stringify(req.body, null, 2));
       try {
         const { title, authors } = req.body || {};
+        console.log(`[${requestId}] Parsed: title=${title}, authors=${JSON.stringify(authors)}`);
+        
         if (!title || typeof title !== 'string') {
+          console.error(`[${requestId}] ❌ Invalid title:`, title);
           return res.status(400).json({ message: 'title is required' });
         }
+        
+        console.log(`[${requestId}] Importing createStory...`);
         const storiesModule = require('./lib/services/stories');
         const createStory = storiesModule.createStory;
+        
+        if (!createStory) {
+          console.error(`[${requestId}] ❌ createStory function not found`);
+          return res.status(500).json({ message: 'createStory function not available' });
+        }
+        
+        console.log(`[${requestId}] Calling createStory(${title}, ${JSON.stringify(authors)})...`);
         const result = await createStory(title, authors);
         console.log(`[${requestId}] ✅ Created story:`, result.story.id);
+        console.log(`[${requestId}] Story data:`, JSON.stringify(result.story, null, 2));
+        
+        const duration = Date.now() - startTime;
+        console.log(`[${requestId}] ✅ Request completed successfully in ${duration}ms`);
         return res.status(201).json(result.story);
       } catch (error: any) {
-        console.error(`[${requestId}] ❌ Error:`, error);
+        const duration = Date.now() - startTime;
+        console.error(`[${requestId}] ❌ Error after ${duration}ms:`, error);
+        console.error(`[${requestId}] Error type:`, error?.constructor?.name);
+        console.error(`[${requestId}] Error message:`, error?.message);
+        console.error(`[${requestId}] Error stack:`, error?.stack);
+        
         const status = error?.message?.includes('required') ? 400 : 500;
-        return res.status(status).json({ message: error?.message || 'Failed to create story' });
+        return res.status(status).json({ 
+          message: error?.message || 'Failed to create story',
+          error: error?.stack,
+          requestId
+        });
       }
     }
 

@@ -375,7 +375,16 @@ export class StoryListPage {
   }
 
   load() {
-    this.api.listStories().subscribe(list => this.stories = list);
+    this.api.listStories().subscribe({
+      next: (list) => {
+        console.log('Stories loaded:', list.length);
+        this.stories = list;
+      },
+      error: (error) => {
+        console.error('Error loading stories:', error);
+        this.stories = []; // 设置为空数组避免显示错误
+      }
+    });
   }
 
   onCreateClick(event: MouseEvent) {
@@ -396,10 +405,18 @@ export class StoryListPage {
     if (!this.title.trim()) return;
     this.isCreating = true;
     this.audio.playSuccess();
-    this.api.createStory(this.title.trim()).subscribe(() => {
-      this.title = '';
-      this.isCreating = false;
-      this.load();
+    this.api.createStory(this.title.trim()).subscribe({
+      next: (story) => {
+        console.log('Story created:', story);
+        this.title = '';
+        this.isCreating = false;
+        this.load();
+      },
+      error: (error) => {
+        console.error('Error creating story:', error);
+        this.isCreating = false;
+        alert('創建故事失敗：' + (error?.error?.message || error?.message || '未知錯誤'));
+      }
     });
   }
 }

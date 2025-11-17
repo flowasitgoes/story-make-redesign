@@ -1,0 +1,16 @@
+{
+  "name": "story-maker-redesign",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "cd frontend/story-zine && npm run build"
+  },
+  "dependencies": {
+    "@vercel/node": "^3.0.7"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.9.0"
+  }
+}
+

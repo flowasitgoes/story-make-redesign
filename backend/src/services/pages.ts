@@ -9,7 +9,7 @@ export async function getPage(storyId: string, pageNumber: number): Promise<Page
   return await readJson<Page | null>(file, null);
 }
 
-export async function lockPage(ns: Namespace, story: Story, pageNumber: number): Promise<{ page: Page; openedNext?: Page; story?: Story }> {
+export async function lockPage(ns: Namespace | null, story: Story, pageNumber: number): Promise<{ page: Page; openedNext?: Page; story?: Story }> {
   const page = await getPage(story.id, pageNumber);
   if (!page) throw new Error('Page not found');
   if (page.locked) return { page };
@@ -26,14 +26,18 @@ export async function lockPage(ns: Namespace, story: Story, pageNumber: number):
   }
   page.locked = true;
   await writeJson(paths.pageFile(story.id, pageNumber), page);
-  ns.to(`story:${story.id}`).emit('page:locked', { storyId: story.id, pageNumber });
+  if (ns) {
+    ns.to(`story:${story.id}`).emit('page:locked', { storyId: story.id, pageNumber });
+  }
   let openedNext: Page | undefined;
   if (pageNumber < 3) {
     const next = await getPage(story.id, pageNumber + 1);
     if (next && next.locked) {
       next.locked = false;
       await writeJson(paths.pageFile(story.id, pageNumber + 1), next);
-      ns.to(`story:${story.id}`).emit('page:opened', { storyId: story.id, pageNumber: pageNumber + 1 });
+      if (ns) {
+        ns.to(`story:${story.id}`).emit('page:opened', { storyId: story.id, pageNumber: pageNumber + 1 });
+      }
       openedNext = next;
     }
   } else {
@@ -41,7 +45,9 @@ export async function lockPage(ns: Namespace, story: Story, pageNumber: number):
     const storyFile = paths.storyFile(story.id);
     const updated: Story = { ...story, status: 'completed' };
     await writeJson(storyFile, updated);
-    ns.emit('story:completed', { storyId: story.id });
+    if (ns) {
+      ns.emit('story:completed', { storyId: story.id });
+    }
     return { page, story: updated };
   }
   return { page, openedNext };

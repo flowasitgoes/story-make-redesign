@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "buildCommand": "cd frontend/story-zine && npm install && npm run build",
+  "outputDirectory": "frontend/story-zine/dist/story-zine/browser",
+  "installCommand": "cd backend && npm install && cd ../frontend/story-zine && npm install && cd ../.. && npm install",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "nodejs20.x"
+    }
+  },
+  "env": {
+    "DATA_DIR": "/tmp/data"
+  }
+}
+

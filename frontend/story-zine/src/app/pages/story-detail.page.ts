@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { Router, RouterModule } from '@angular/router';
@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService, Page, Story, Proposal } from '../services/api.service';
 import { SocketService } from '../services/socket.service';
 import { AudioService } from '../services/audio.service';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -675,7 +676,7 @@ import { AudioService } from '../services/audio.service';
     }
   `]
 })
-export class StoryDetailPage {
+export class StoryDetailPage implements OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private api = inject(ApiService);
@@ -693,6 +694,9 @@ export class StoryDetailPage {
   errorMsg = '';
   contentBlocks: { author: string | null; text: string }[] = [];
   requiredAcceptedCount = 3;
+  private pollingSubscription?: Subscription;
+  private lastProposalCount = 0;
+  private lastPageContent = '';
 
   constructor() {
     this.route.params.subscribe(params => {
@@ -701,7 +705,59 @@ export class StoryDetailPage {
         this.loadStory(id);
         this.socket.joinStoryRoom(id);
         this.bindSocket();
+        this.startPolling(id);
       }
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.pollingSubscription) {
+      this.pollingSubscription.unsubscribe();
+    }
+  }
+
+  private startPolling(storyId: string) {
+    // 如果 Socket.IO 可用，不需要轮询
+    if (!this.socket.isPollingMode()) {
+      return;
+    }
+
+    // 每3秒轮询一次数据
+    this.pollingSubscription = interval(3000).subscribe(() => {
+      if (!this.story) return;
+      
+      // 轮询提案列表
+      this.api.listProposals(storyId).subscribe({
+        next: (proposals) => {
+          const pending = proposals.filter(p => p.status === 'pending' && p.pageNumber === this.currentPage);
+          const newCount = proposals.filter(p => p.status === 'accepted' && p.pageNumber === this.currentPage).length;
+          
+          // 检测新提案
+          if (pending.length > this.pendingProposals.length) {
+            const newProposals = pending.slice(0, pending.length - this.pendingProposals.length);
+            newProposals.forEach(p => {
+              this.events.unshift({ 
+                text: `新提案：P${p.pageNumber} by ${p.author} (${p.text.slice(0, 10)}...)`, 
+                author: p.author 
+              });
+            });
+            this.pendingProposals = pending;
+          }
+          
+          // 检测提案被接受
+          if (newCount > this.acceptedCount) {
+            this.events.unshift({ text: '有提案被接受' });
+            this.refreshPage();
+            this.pendingProposals = [];
+          }
+          
+          // 刷新页面内容
+          this.refreshPage();
+        },
+        error: () => {
+          // 轮询失败时静默处理
+        }
+      });
     });
   }
 

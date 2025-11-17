@@ -12,7 +12,7 @@ export async function listProposals(storyId: string): Promise<Proposal[]> {
 }
 
 export async function createProposal(
-  ns: Namespace,
+  ns: Namespace | null,
   storyId: string,
   pageNumber: 1 | 2 | 3,
   author: string,
@@ -40,11 +40,13 @@ export async function createProposal(
   const all = await listProposals(storyId);
   all.push(proposal);
   await writeJson(paths.proposalsFile(storyId), all);
-  ns.to(`story:${storyId}`).emit('proposal:created', { proposal });
+  if (ns) {
+    ns.to(`story:${storyId}`).emit('proposal:created', { proposal });
+  }
   return proposal;
 }
 
-export async function acceptProposal(ns: Namespace, storyId: string, proposalId: string): Promise<{ page: Page; proposal: Proposal }> {
+export async function acceptProposal(ns: Namespace | null, storyId: string, proposalId: string): Promise<{ page: Page; proposal: Proposal }> {
   const all = await listProposals(storyId);
   const idx = all.findIndex(p => p.id === proposalId);
   if (idx < 0) throw new Error('Proposal not found');
@@ -67,12 +69,14 @@ export async function acceptProposal(ns: Namespace, storyId: string, proposalId:
   proposal.status = 'accepted';
   all[idx] = proposal;
   await writeJson(paths.proposalsFile(storyId), all);
-  ns.to(`story:${storyId}`).emit('proposal:accepted', { proposalId });
-  ns.to(`story:${storyId}`).emit('page:updated', { storyId, pageNumber: proposal.pageNumber, content: page.content });
+  if (ns) {
+    ns.to(`story:${storyId}`).emit('proposal:accepted', { proposalId });
+    ns.to(`story:${storyId}`).emit('page:updated', { storyId, pageNumber: proposal.pageNumber, content: page.content });
+  }
   return { page, proposal };
 }
 
-export async function rejectProposal(ns: Namespace, storyId: string, proposalId: string): Promise<Proposal> {
+export async function rejectProposal(ns: Namespace | null, storyId: string, proposalId: string): Promise<Proposal> {
   const all = await listProposals(storyId);
   const idx = all.findIndex(p => p.id === proposalId);
   if (idx < 0) throw new Error('Proposal not found');
@@ -80,7 +84,9 @@ export async function rejectProposal(ns: Namespace, storyId: string, proposalId:
   proposal.status = 'rejected';
   all[idx] = proposal;
   await writeJson(paths.proposalsFile(storyId), all);
-  ns.to(`story:${storyId}`).emit('proposal:rejected', { proposalId });
+  if (ns) {
+    ns.to(`story:${storyId}`).emit('proposal:rejected', { proposalId });
+  }
   return proposal;
 }
 

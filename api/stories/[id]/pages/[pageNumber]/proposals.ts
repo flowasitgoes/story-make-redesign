@@ -29,7 +29,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!author || !text) {
         return res.status(400).json({ message: 'author and text are required' });
       }
-      // Note: Socket.IO namespace is not available in Serverless Functions
       const proposal = await createProposal(null, id, pageNum as 1 | 2 | 3, author, text);
       return res.status(201).json(proposal);
     } catch (e: any) {

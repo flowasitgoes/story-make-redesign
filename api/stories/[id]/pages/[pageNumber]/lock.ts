@@ -25,8 +25,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!story) {
         return res.status(404).json({ message: 'Story not found' });
       }
-      // Note: Socket.IO namespace is not available in Serverless Functions
-      // Passing null - real-time events won't work without external service
       const result = await lockPage(null, story, pageNum);
       return res.status(200).json(result.page);
     } catch (e: any) {

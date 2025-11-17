@@ -13,13 +13,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method === 'GET') {
     try {
+      console.log('Fetching stories...');
       const stories = await listStories();
+      console.log(`Found ${stories.length} stories`);
       return res.status(200).json(stories);
     } catch (e: any) {
       console.error('Error listing stories:', e);
+      console.error('Error stack:', e.stack);
       return res.status(500).json({ 
         message: e.message || 'Internal error',
-        error: process.env.NODE_ENV === 'development' ? e.stack : undefined
+        error: e.stack,
+        type: e.constructor?.name
       });
     }
   }

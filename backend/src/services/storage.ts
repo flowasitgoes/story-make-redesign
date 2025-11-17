@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
-import { DATA_DIR } from '../server';
+import { DATA_DIR } from '../config';
 import { KVStorage } from './kv-storage';
 
 // 检查是否使用 KV 存储

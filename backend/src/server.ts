@@ -2,11 +2,10 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import { Server as SocketIOServer } from 'socket.io';
-import path from 'path';
 import { routerFactory } from './routes';
+import { DATA_DIR } from './config';
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
-export const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
 
 const app = express();
 app.use(cors());

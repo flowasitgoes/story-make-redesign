@@ -4,39 +4,49 @@ import { getPage, lockPage } from './lib/services/pages';
 import { listProposals, createProposal, acceptProposal, rejectProposal } from './lib/services/proposals';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  // 从 query.route 或 URL 解析路径
-  let path: string[] = [];
-  if (req.query.route) {
-    path = Array.isArray(req.query.route) ? req.query.route : [req.query.route];
-  } else if (req.url) {
-    // 从 URL 解析：/api/stories -> ['stories']
-    const urlPath = req.url.replace(/^\/api\/?/, '').split('/').filter(Boolean);
-    path = urlPath;
-  }
-  const route = path.join('/');
-
-  console.log('API Request:', {
-    method: req.method,
-    url: req.url,
-    path,
-    route,
-    query: req.query
-  });
-
   try {
+    // CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+      return res.status(200).end();
+    }
+
+    // 从 query.route 解析路径（Vercel catch-all 路由会将路径段放在 query.route）
+    let path: string[] = [];
+    if (req.query.route) {
+      if (Array.isArray(req.query.route)) {
+        path = req.query.route;
+      } else {
+        path = [req.query.route];
+      }
+    } else if (req.url) {
+      // 备用方案：从 URL 解析
+      const urlPath = req.url.replace(/^\/api\/?/, '').split('/').filter(Boolean);
+      path = urlPath;
+    }
+    const route = path.join('/');
+
+    console.log('=== API Request ===');
+    console.log('Method:', req.method);
+    console.log('URL:', req.url);
+    console.log('Query:', JSON.stringify(req.query));
+    console.log('Path:', path);
+    console.log('Route:', route);
+
     // GET /api/stories
     if (req.method === 'GET' && route === 'stories') {
-      const stories = await listStories();
-      return res.status(200).json(stories);
+      console.log('Handling GET /api/stories');
+      try {
+        const stories = await listStories();
+        console.log(`Successfully retrieved ${stories.length} stories`);
+        return res.status(200).json(stories);
+      } catch (error: any) {
+        console.error('Error in listStories:', error);
+        throw error;
+      }
     }
 
     // POST /api/stories
@@ -136,16 +146,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json(proposal);
     }
 
-    return res.status(404).json({ message: 'Route not found' });
+    console.log('Route not matched:', route);
+    return res.status(404).json({ message: 'Route not found', route });
   } catch (e: any) {
-    console.error('API Error:', e);
+    console.error('=== API Error ===');
+    console.error('Error message:', e.message);
+    console.error('Error stack:', e.stack);
+    console.error('Error type:', e.constructor?.name);
+    
     const status = e.message?.includes('not found') ? 404 : 
                    e.message?.includes('required') ? 400 :
                    e.message?.includes('locked') ? 409 :
                    e.message?.includes('at least') ? 422 : 500;
+    
     return res.status(status).json({ 
       message: e.message || 'Internal error',
-      error: process.env.NODE_ENV === 'development' ? e.stack : undefined
+      error: e.stack,
+      type: e.constructor?.name
     });
   }
 }

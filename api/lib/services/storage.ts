@@ -7,6 +7,12 @@ import { KVStorage } from './kv-storage';
 const useKV = KVStorage.isAvailable();
 const kvStorage = useKV ? new KVStorage() : null;
 
+console.log('Storage initialized:', {
+  useKV,
+  dataDir: DATA_DIR,
+  kvAvailable: KVStorage.isAvailable()
+});
+
 // 文件系统存储函数
 const ensureDirFile = async (dir: string) => {
   if (useKV) return; // KV 不需要创建目录
@@ -77,21 +83,31 @@ const writeJsonKV = async (key: string, data: unknown) => {
 
 // 统一的存储接口
 export const readJson = async <T>(filePath: string, fallback: T): Promise<T> => {
-  if (useKV) {
-    // 将文件路径转换为 KV key
-    const key = filePath.replace(/[^a-zA-Z0-9]/g, ':');
-    return readJsonKV(key, fallback);
+  try {
+    if (useKV) {
+      // 将文件路径转换为 KV key
+      const key = filePath.replace(/[^a-zA-Z0-9]/g, ':');
+      return await readJsonKV(key, fallback);
+    }
+    return await readJsonFile(filePath, fallback);
+  } catch (error: any) {
+    console.error(`Storage read error for ${filePath}:`, error);
+    return fallback;
   }
-  return readJsonFile(filePath, fallback);
 };
 
 export const writeJson = async (filePath: string, data: unknown) => {
-  if (useKV) {
-    // 将文件路径转换为 KV key
-    const key = filePath.replace(/[^a-zA-Z0-9]/g, ':');
-    await writeJsonKV(key, data);
-  } else {
-    await writeJsonFile(filePath, data);
+  try {
+    if (useKV) {
+      // 将文件路径转换为 KV key
+      const key = filePath.replace(/[^a-zA-Z0-9]/g, ':');
+      await writeJsonKV(key, data);
+    } else {
+      await writeJsonFile(filePath, data);
+    }
+  } catch (error: any) {
+    console.error(`Storage write error for ${filePath}:`, error);
+    throw error;
   }
 };
 

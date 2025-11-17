@@ -30,6 +30,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/audio",
+                "output": "/audio"
               }
             ],
             "styles": [
@@ -62,6 +67,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "story-zine:build:production"
@@ -88,6 +96,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/audio",
+                "output": "/audio"
               }
             ],
             "styles": [

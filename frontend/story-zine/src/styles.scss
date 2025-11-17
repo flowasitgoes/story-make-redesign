@@ -1,1 +1,245 @@
-/* You can add global styles to this file, and also import other style files */
+/* 全局样式 - 可爱风格 */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Comfortaa:wght@400;600;700&display=swap');
+
+/* 配色方案变量 */
+:root {
+  /* 主色调 */
+  --color-pink-light: #FFF5F5;
+  --color-pink: #FFB6C1;
+  --color-pink-bright: #FF6B9D;
+  --color-yellow: #FFE66D;
+  --color-yellow-light: #FFF9E6;
+  --color-blue: #4ECDC4;
+  --color-blue-light: #E0F7F5;
+  --color-purple: #A8E6CF;
+  --color-purple-light: #F0FDF8;
+  
+  /* 中性色 */
+  --color-white: #FFFFFF;
+  --color-gray-light: #F8F8F8;
+  --color-gray: #E8E8E8;
+  --color-gray-dark: #CCCCCC;
+  --color-text: #333333;
+  --color-text-light: #666666;
+  --color-text-muted: #999999;
+  
+  /* 作者配色（更鲜艳版本） */
+  --color-author-a: #FFE5E5;
+  --color-author-b: #E5F5E5;
+  --color-author-c: #E5F0FF;
+  
+  /* 圆角 */
+  --radius-small: 12px;
+  --radius-medium: 16px;
+  --radius-large: 20px;
+  --radius-xlarge: 24px;
+  
+  /* 阴影 */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 6px 12px rgba(255, 107, 157, 0.2);
+  
+  /* 过渡动画 */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+/* 全局基础样式 */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Comfortaa', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, var(--color-pink-light) 0%, var(--color-yellow-light) 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+/* 全局按钮基础样式 */
+button {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  border: none;
+  outline: none;
+  position: relative;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0) scale(0.95);
+    animation: bounce 0.3s ease;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+/* 点击动画类 */
+.click-animate {
+  animation: pop 0.3s ease;
+}
+
+.click-bounce {
+  animation: bounce 0.4s ease;
+}
+
+.click-wiggle {
+  animation: wiggle 0.5s ease;
+}
+
+.click-sparkle {
+  animation: sparkle 0.6s ease;
+}
+
+/* 全局输入框基础样式 */
+input, textarea {
+  font-family: 'Nunito', sans-serif;
+  transition: all var(--transition-normal);
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
+  }
+}
+
+/* 全局链接样式 */
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+/* 全局动画 */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-3deg);
+  }
+  75% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.2);
+  }
+}
+
+/* 工具类 */
+.cute-card {
+  background: var(--color-white);
+  border-radius: var(--radius-medium);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal);
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+.cute-button {
+  background: linear-gradient(135deg, var(--color-pink-bright) 0%, var(--color-blue) 100%);
+  color: var(--color-white);
+  border-radius: var(--radius-large);
+  padding: 12px 24px;
+  font-size: 16px;
+  box-shadow: var(--shadow-md);
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #FF5A8A 0%, #3EB8B0 100%);
+  }
+}
+
+.cute-button-secondary {
+  background: var(--color-white);
+  color: var(--color-pink-bright);
+  border: 2px solid var(--color-pink-bright);
+  border-radius: var(--radius-large);
+  padding: 10px 22px;
+  font-size: 16px;
+  box-shadow: var(--shadow-sm);
+  
+  &:hover:not(:disabled) {
+    background: var(--color-pink-light);
+  }
+}

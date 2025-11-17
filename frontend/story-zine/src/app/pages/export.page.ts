@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService, Page, Proposal, Story } from '../services/api.service';
+import { AudioService } from '../services/audio.service';
 
 @Component({
   standalone: true,
@@ -10,14 +11,29 @@ import { ApiService, Page, Proposal, Story } from '../services/api.service';
   template: `
     <div class="export-wrap" *ngIf="story">
       <header class="toolbar no-print">
-        <button (click)="goBack()">返回</button>
-        <button (click)="print()">列印 PDF</button>
+        <button (click)="goBack($event)" class="cute-button-back">
+          <span class="emoji">←</span>
+          返回
+        </button>
+        <button (click)="print($event)" class="cute-button-print">
+          <span class="emoji">🖨️</span>
+          列印 PDF
+        </button>
       </header>
-      <h2 class="title">{{ story?.title || '作品' }}（成冊輸出）</h2>
+      <h2 class="title">
+        <span class="emoji">📚</span>
+        {{ story?.title || '作品' }}（成冊輸出）
+      </h2>
       <section class="page" *ngFor="let pg of pages; let i = index">
-        <h3 class="page-title">第 {{ i + 1 }} 頁</h3>
+        <h3 class="page-title">
+          <span class="page-number">{{ i + 1 }}</span>
+          第 {{ i + 1 }} 頁
+        </h3>
         <div class="block" *ngFor="let b of pg.blocks" [ngClass]="authorBgClass(b.author)">
-          <div class="block-meta" *ngIf="b.author">作者：{{ b.author }}</div>
+          <div class="block-meta" *ngIf="b.author">
+            <span class="emoji">✍️</span>
+            作者：{{ b.author }}
+          </div>
           <pre class="text">{{ b.text }}</pre>
         </div>
         <div class="page-break"></div>
@@ -25,23 +41,227 @@ import { ApiService, Page, Proposal, Story } from '../services/api.service';
     </div>
   `,
   styles: [`
-    .export-wrap { max-width: 900px; margin: 24px auto; padding: 0 12px; }
-    .toolbar { display:flex; gap:8px; margin-bottom:12px; }
-    .title { text-align:center; margin: 12px 0 20px; }
-    .page { margin: 16px 0 24px; }
-    .page-title { margin: 0 0 10px; }
-    .block { border:1px solid #eee; border-radius:8px; padding:0; margin:10px 0; }
-    .block .text { border:none; background:transparent; white-space:pre-wrap; line-height:1.8; padding:12px; margin:0; }
-    .block-meta { font-size:12px; color:#555; padding:6px 10px; }
-    /* 作者底色 */
-    .by-A { background:#fdeaea; }
-    .by-B { background:#eaf7ea; }
-    .by-C { background:#eaf1ff; }
-    .page-break { page-break-after: always; }
+    .export-wrap { 
+      max-width: 900px; 
+      margin: 32px auto; 
+      padding: 0 20px;
+      animation: slideIn 0.5s ease;
+    }
+    
+    .toolbar { 
+      display:flex; 
+      gap:12px; 
+      margin-bottom:24px;
+      background: var(--color-white);
+      padding: 16px 20px;
+      border-radius: var(--radius-medium);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .cute-button-back {
+      background: var(--color-white);
+      color: var(--color-pink-bright);
+      border: 2px solid var(--color-pink-bright);
+      border-radius: var(--radius-large);
+      padding: 10px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all var(--transition-normal);
+      cursor: pointer;
+    }
+    
+    .cute-button-back:hover {
+      background: var(--color-pink-light);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .cute-button-print {
+      background: linear-gradient(135deg, var(--color-pink-bright) 0%, var(--color-blue) 100%);
+      color: var(--color-white);
+      border-radius: var(--radius-large);
+      padding: 10px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all var(--transition-normal);
+      cursor: pointer;
+    }
+    
+    .cute-button-print:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+    
+    .title { 
+      text-align:center; 
+      margin: 24px 0 32px;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    
+    .title .emoji {
+      font-size: 36px;
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    .page { 
+      margin: 24px 0 32px;
+      background: var(--color-white);
+      padding: 24px;
+      border-radius: var(--radius-medium);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .page-title { 
+      margin: 0 0 20px;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--color-gray);
+    }
+    
+    .page-number {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--color-pink-bright) 0%, var(--color-blue) 100%);
+      color: var(--color-white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .block { 
+      border:2px solid var(--color-gray); 
+      border-radius:var(--radius-small); 
+      padding:0; 
+      margin:16px 0;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    
+    .block .text { 
+      border:none; 
+      background:transparent; 
+      white-space:pre-wrap; 
+      line-height:1.8; 
+      padding:16px; 
+      margin:0;
+      font-size: 15px;
+      font-family: inherit;
+    }
+    
+    .block-meta { 
+      font-size:13px; 
+      color:var(--color-text-light); 
+      padding:10px 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    /* 作者底色 - 使用更鲜艳的版本 */
+    .by-A { 
+      background:var(--color-author-a);
+      border-color: #FFB3B3;
+    }
+    
+    .by-B { 
+      background:var(--color-author-b);
+      border-color: #B3FFB3;
+    }
+    
+    .by-C { 
+      background:var(--color-author-c);
+      border-color: #B3D9FF;
+    }
+    
+    .page-break { 
+      page-break-after: always; 
+    }
+    
+    .emoji {
+      display: inline-block;
+    }
+    
     @media print {
-      .no-print { display: none !important; }
-      .export-wrap { max-width: 100%; margin: 0; padding: 0; }
-      .page { break-inside: avoid; }
+      .no-print { 
+        display: none !important; 
+      }
+      
+      .export-wrap { 
+        max-width: 100%; 
+        margin: 0; 
+        padding: 0;
+        background: white;
+      }
+      
+      .page { 
+        break-inside: avoid;
+        box-shadow: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        page-break-after: always;
+      }
+      
+      .page:last-child {
+        page-break-after: auto;
+      }
+      
+      .title .emoji,
+      .page-title .page-number,
+      .block-meta .emoji {
+        display: none;
+      }
+      
+      .title {
+        font-size: 24px;
+        margin: 0 0 20px;
+      }
+      
+      .page-title {
+        font-size: 18px;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 16px;
+      }
+      
+      .block {
+        border: 1px solid #ddd;
+        margin: 12px 0;
+        box-shadow: none;
+      }
+      
+      .block-meta {
+        font-size: 11px;
+        padding: 6px 12px;
+      }
+      
+      .block .text {
+        padding: 12px;
+        font-size: 14px;
+      }
     }
   `]
 })
@@ -49,6 +269,7 @@ export class ExportPage {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private api = inject(ApiService);
+  private audio = inject(AudioService);
   story: Story | null = null;
   pages: { page: Page; blocks: { author: string | null; text: string }[] }[] = [];
   allProposals: Proposal[] = [];
@@ -102,6 +323,29 @@ export class ExportPage {
     return '';
   }
 
-  goBack() { this.router.navigate(['../'], { relativeTo: this.route }); }
-  print() { window.print(); }
+  goBack(event?: MouseEvent) {
+    if (event) {
+      this.audio.playClose();
+      const button = event.target as HTMLElement;
+      const btn = button.closest('.cute-button-back') as HTMLElement;
+      if (btn) {
+        btn.classList.add('click-bounce');
+        setTimeout(() => btn.classList.remove('click-bounce'), 400);
+      }
+    }
+    this.router.navigate(['../'], { relativeTo: this.route });
+  }
+  
+  print(event?: MouseEvent) {
+    if (event) {
+      this.audio.playOpen();
+      const button = event.target as HTMLElement;
+      const btn = button.closest('.cute-button-print') as HTMLElement;
+      if (btn) {
+        btn.classList.add('click-animate');
+        setTimeout(() => btn.classList.remove('click-animate'), 300);
+      }
+    }
+    window.print();
+  }
 }

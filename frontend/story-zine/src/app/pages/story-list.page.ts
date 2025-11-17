@@ -414,8 +414,16 @@ export class StoryListPage {
       },
       error: (error) => {
         console.error('Error creating story:', error);
+        console.error('Error details:', {
+          status: error?.status,
+          statusText: error?.statusText,
+          message: error?.error?.message || error?.message,
+          error: error?.error,
+          fullError: error
+        });
         this.isCreating = false;
-        alert('創建故事失敗：' + (error?.error?.message || error?.message || '未知錯誤'));
+        const errorMsg = error?.error?.message || error?.message || error?.error || '未知錯誤';
+        alert('創建故事失敗：' + errorMsg);
       }
     });
   }

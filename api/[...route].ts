@@ -111,11 +111,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.error(`[${requestId}] Error type:`, error?.constructor?.name);
         console.error(`[${requestId}] Error message:`, error?.message);
         console.error(`[${requestId}] Error stack:`, error?.stack);
+        console.error(`[${requestId}] Error code:`, error?.code);
+        console.error(`[${requestId}] Error name:`, error?.name);
+        console.error(`[${requestId}] Full error object:`, JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
         
         const status = error?.message?.includes('required') ? 400 : 500;
         return res.status(status).json({ 
           message: error?.message || 'Failed to create story',
           error: error?.stack,
+          errorType: error?.constructor?.name,
+          errorCode: error?.code,
           requestId
         });
       }

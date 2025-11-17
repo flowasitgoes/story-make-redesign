@@ -27,7 +27,7 @@ export async function lockPage(ns: Namespace | null, story: Story, pageNumber: n
   page.locked = true;
   await writeJson(paths.pageFile(story.id, pageNumber), page);
   if (ns) {
-    ns.to(`story:${story.id}`).emit('page:locked', { storyId: story.id, pageNumber });
+  ns.to(`story:${story.id}`).emit('page:locked', { storyId: story.id, pageNumber });
   }
   let openedNext: Page | undefined;
   if (pageNumber < 3) {
@@ -36,7 +36,7 @@ export async function lockPage(ns: Namespace | null, story: Story, pageNumber: n
       next.locked = false;
       await writeJson(paths.pageFile(story.id, pageNumber + 1), next);
       if (ns) {
-        ns.to(`story:${story.id}`).emit('page:opened', { storyId: story.id, pageNumber: pageNumber + 1 });
+      ns.to(`story:${story.id}`).emit('page:opened', { storyId: story.id, pageNumber: pageNumber + 1 });
       }
       openedNext = next;
     }
@@ -46,7 +46,7 @@ export async function lockPage(ns: Namespace | null, story: Story, pageNumber: n
     const updated: Story = { ...story, status: 'completed' };
     await writeJson(storyFile, updated);
     if (ns) {
-      ns.emit('story:completed', { storyId: story.id });
+    ns.emit('story:completed', { storyId: story.id });
     }
     return { page, story: updated };
   }

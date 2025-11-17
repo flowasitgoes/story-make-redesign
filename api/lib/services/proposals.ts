@@ -1,9 +1,14 @@
 import type { Namespace } from '../types/socket-io';
 import { paths, readJson, writeJson } from './storage';
 import { Proposal, Page } from '../types/models';
-import { v4 as uuidv4 } from 'uuid';
 import { canAppend, PROPOSAL_MIN, PROPOSAL_MAX } from './content';
 import { getPage } from './pages';
+
+// 动态导入 uuid（因为它是 ES Module）
+async function generateUUID(): Promise<string> {
+  const { v4: uuidv4 } = await import('uuid');
+  return uuidv4();
+}
 
 const MAX_ACCEPTED_PER_PAGE = parseInt(process.env.MAX_ACCEPTED_PER_PAGE || '2', 10);
 
@@ -29,7 +34,7 @@ export async function createProposal(
     throw new Error('Content exceeds max length');
   }
   const proposal: Proposal = {
-    id: uuidv4(),
+    id: await generateUUID(),
     storyId,
     pageNumber,
     author,

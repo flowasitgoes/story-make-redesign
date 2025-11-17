@@ -41,7 +41,7 @@ export async function createProposal(
   all.push(proposal);
   await writeJson(paths.proposalsFile(storyId), all);
   if (ns) {
-    ns.to(`story:${storyId}`).emit('proposal:created', { proposal });
+  ns.to(`story:${storyId}`).emit('proposal:created', { proposal });
   }
   return proposal;
 }
@@ -70,8 +70,8 @@ export async function acceptProposal(ns: Namespace | null, storyId: string, prop
   all[idx] = proposal;
   await writeJson(paths.proposalsFile(storyId), all);
   if (ns) {
-    ns.to(`story:${storyId}`).emit('proposal:accepted', { proposalId });
-    ns.to(`story:${storyId}`).emit('page:updated', { storyId, pageNumber: proposal.pageNumber, content: page.content });
+  ns.to(`story:${storyId}`).emit('proposal:accepted', { proposalId });
+  ns.to(`story:${storyId}`).emit('page:updated', { storyId, pageNumber: proposal.pageNumber, content: page.content });
   }
   return { page, proposal };
 }
@@ -85,7 +85,7 @@ export async function rejectProposal(ns: Namespace | null, storyId: string, prop
   all[idx] = proposal;
   await writeJson(paths.proposalsFile(storyId), all);
   if (ns) {
-    ns.to(`story:${storyId}`).emit('proposal:rejected', { proposalId });
+  ns.to(`story:${storyId}`).emit('proposal:rejected', { proposalId });
   }
   return proposal;
 }

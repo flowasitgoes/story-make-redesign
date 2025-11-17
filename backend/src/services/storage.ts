@@ -11,7 +11,7 @@ const kvStorage = useKV ? new KVStorage() : null;
 const ensureDirFile = async (dir: string) => {
   if (useKV) return; // KV 不需要创建目录
   try {
-    await fs.ensureDir(dir);
+  await fs.ensureDir(dir);
   } catch (error) {
     // 如果目录创建失败，尝试使用 /tmp
     console.warn(`Failed to create directory ${dir}, using /tmp/data`);

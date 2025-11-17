@@ -51,7 +51,7 @@ export class SocketService {
 
   joinStoryRoom(storyId: string) {
     if (this.socket && this.connected) {
-      this.socket.emit('join', `story:${storyId}`);
+    this.socket.emit('join', `story:${storyId}`);
     }
     // 轮询模式下不需要 join，因为会通过 API 获取数据
   }
@@ -64,8 +64,8 @@ export class SocketService {
 
     // Socket.IO 模式
     if (this.socket) {
-      return new Observable<T>(subscriber => {
-        const handler = (data: T) => subscriber.next(data);
+    return new Observable<T>(subscriber => {
+      const handler = (data: T) => subscriber.next(data);
         this.socket!.on(event, handler);
         return () => {
           if (this.socket) {

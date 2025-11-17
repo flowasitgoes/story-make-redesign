@@ -408,9 +408,9 @@ export class StoryListPage {
     this.api.createStory(this.title.trim()).subscribe({
       next: (story) => {
         console.log('Story created:', story);
-        this.title = '';
-        this.isCreating = false;
-        this.load();
+      this.title = '';
+      this.isCreating = false;
+      this.load();
       },
       error: (error) => {
         console.error('Error creating story:', error);

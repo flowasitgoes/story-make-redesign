@@ -87,11 +87,17 @@ export const readJson = async <T>(filePath: string, fallback: T): Promise<T> => 
     if (useKV) {
       // 将文件路径转换为 KV key
       const key = filePath.replace(/[^a-zA-Z0-9]/g, ':');
-      return await readJsonKV(key, fallback);
+      console.log(`[readJson] Reading from KV, key: ${key}, path: ${filePath}`);
+      const result = await readJsonKV(key, fallback);
+      console.log(`[readJson] KV read result:`, result === fallback ? 'fallback' : 'data found');
+      return result;
     }
-    return await readJsonFile(filePath, fallback);
+    console.log(`[readJson] Reading from file system: ${filePath}`);
+    const result = await readJsonFile(filePath, fallback);
+    console.log(`[readJson] File read result:`, result === fallback ? 'fallback' : 'data found');
+    return result;
   } catch (error: any) {
-    console.error(`Storage read error for ${filePath}:`, error);
+    console.error(`[readJson] Storage read error for ${filePath}:`, error);
     return fallback;
   }
 };
@@ -101,12 +107,16 @@ export const writeJson = async (filePath: string, data: unknown) => {
     if (useKV) {
       // 将文件路径转换为 KV key
       const key = filePath.replace(/[^a-zA-Z0-9]/g, ':');
+      console.log(`[writeJson] Writing to KV, key: ${key}, path: ${filePath}`);
       await writeJsonKV(key, data);
+      console.log(`[writeJson] ✅ KV write successful`);
     } else {
+      console.log(`[writeJson] Writing to file system: ${filePath}`);
       await writeJsonFile(filePath, data);
+      console.log(`[writeJson] ✅ File write successful`);
     }
   } catch (error: any) {
-    console.error(`Storage write error for ${filePath}:`, error);
+    console.error(`[writeJson] Storage write error for ${filePath}:`, error);
     throw error;
   }
 };

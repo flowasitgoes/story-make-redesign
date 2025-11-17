@@ -6,10 +6,14 @@
     "build": "cd frontend/story-zine && npm run build"
   },
   "dependencies": {
-    "@vercel/node": "^3.0.7"
+    "@vercel/kv": "^1.0.1",
+    "@vercel/node": "^3.0.7",
+    "fs-extra": "^11.3.2",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@types/uuid": "^10.0.0",
     "typescript": "^5.9.0"
   }
 }

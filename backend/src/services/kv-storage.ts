@@ -2,20 +2,25 @@
  * Vercel KV 存储适配器
  * 用于在 Vercel Serverless Functions 中持久化数据
  */
+let kvInstance: any = null;
+
+// 尝试加载 @vercel/kv
+try {
+  // @vercel/kv 的正确导入方式：import { kv } from '@vercel/kv'
+  const kvModule = require('@vercel/kv');
+  kvInstance = kvModule.kv || kvModule.default?.kv || kvModule.default || kvModule;
+} catch (error) {
+  // 如果导入失败，kvInstance 保持为 null
+  console.warn('@vercel/kv not available:', error);
+}
+
 export class KVStorage {
   private prefix: string;
   private kv: any;
 
   constructor(prefix: string = 'story-maker:') {
     this.prefix = prefix;
-    // 动态导入 @vercel/kv，避免在非 Vercel 环境中出错
-    try {
-      // @vercel/kv 导出的是默认的 kv 对象
-      const kvModule = require('@vercel/kv');
-      this.kv = kvModule.kv || kvModule.default || kvModule;
-    } catch (error) {
-      this.kv = null;
-    }
+    this.kv = kvInstance;
   }
 
   private getKey(key: string): string {

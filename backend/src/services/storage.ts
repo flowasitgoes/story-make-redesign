@@ -10,7 +10,13 @@ const kvStorage = useKV ? new KVStorage() : null;
 // 文件系统存储函数
 const ensureDirFile = async (dir: string) => {
   if (useKV) return; // KV 不需要创建目录
-  await fs.ensureDir(dir);
+  try {
+    await fs.ensureDir(dir);
+  } catch (error) {
+    // 如果目录创建失败，尝试使用 /tmp
+    console.warn(`Failed to create directory ${dir}, using /tmp/data`);
+    await fs.ensureDir('/tmp/data');
+  }
 };
 
 const readJsonFile = async <T>(filePath: string, fallback: T): Promise<T> => {
@@ -34,14 +40,37 @@ const writeJsonFile = async (filePath: string, data: unknown) => {
 
 // KV 存储函数
 const readJsonKV = async <T>(key: string, fallback: T): Promise<T> => {
-  if (!kvStorage) return fallback;
-  const value = await kvStorage.get<T>(key);
-  return value !== null ? value : fallback;
+  if (!kvStorage) {
+    // 如果没有 KV，尝试从文件系统读取（临时存储）
+    try {
+      const filePath = `/tmp/data/${key.replace(/:/g, '/')}.json`;
+      return await readJsonFile(filePath, fallback);
+    } catch {
+      return fallback;
+    }
+  }
+  try {
+    const value = await kvStorage.get<T>(key);
+    return value !== null ? value : fallback;
+  } catch (error) {
+    console.error('KV read error, falling back to file system:', error);
+    // 如果 KV 读取失败，尝试文件系统
+    try {
+      const filePath = `/tmp/data/${key.replace(/:/g, '/')}.json`;
+      return await readJsonFile(filePath, fallback);
+    } catch {
+      return fallback;
+    }
+  }
 };
 
 const writeJsonKV = async (key: string, data: unknown) => {
   if (!kvStorage) {
-    throw new Error('KV storage not available');
+    // 如果没有 KV，尝试使用文件系统（临时存储）
+    console.warn('KV storage not available, using file system (temporary)');
+    const filePath = `/tmp/data/${key.replace(/:/g, '/')}.json`;
+    await writeJsonFile(filePath, data);
+    return;
   }
   await kvStorage.set(key, data);
 };

@@ -16,7 +16,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const stories = await listStories();
       return res.status(200).json(stories);
     } catch (e: any) {
-      return res.status(500).json({ message: e.message || 'Internal error' });
+      console.error('Error listing stories:', e);
+      return res.status(500).json({ 
+        message: e.message || 'Internal error',
+        error: process.env.NODE_ENV === 'development' ? e.stack : undefined
+      });
     }
   }
 
@@ -31,7 +35,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // You may need to use Vercel's Server-Sent Events or external WebSocket service
       return res.status(201).json(result.story);
     } catch (e: any) {
-      return res.status(500).json({ message: e.message || 'Internal error' });
+      console.error('Error creating story:', e);
+      return res.status(500).json({ 
+        message: e.message || 'Internal error',
+        error: process.env.NODE_ENV === 'development' ? e.stack : undefined
+      });
     }
   }
 

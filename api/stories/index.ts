@@ -74,15 +74,56 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // 步骤 1: 测试 POST（暂时返回简单响应）
+    // 步骤 2: 实现 POST /api/stories（创建故事）
     if (req.method === 'POST') {
       console.log(`[${requestId}] Handling POST request`);
+      console.log(`[${requestId}] Step 1: Parsing request body...`);
+      
       const { title, authors } = req.body || {};
       console.log(`[${requestId}] Received:`, { title, authors });
-      const response = { message: 'POST received (not implemented yet)', title: title || 'no title' };
-      const duration = Date.now() - startTime;
-      console.log(`[${requestId}] Request completed in ${duration}ms`);
-      return res.status(200).json(response);
+      
+      if (!title || typeof title !== 'string') {
+        console.error(`[${requestId}] ❌ Invalid title:`, title);
+        return res.status(400).json({ message: 'title is required' });
+      }
+      
+      try {
+        console.log(`[${requestId}] Step 2: Importing createStory...`);
+        const storiesModule = require('../lib/services/stories');
+        console.log(`[${requestId}] ✅ Module imported successfully`);
+        
+        const createStory = storiesModule.createStory;
+        console.log(`[${requestId}] createStory type:`, typeof createStory);
+        
+        if (!createStory) {
+          console.error(`[${requestId}] ❌ createStory function not found`);
+          return res.status(500).json({ message: 'createStory function not available' });
+        }
+        
+        console.log(`[${requestId}] Step 3: Calling createStory(${title}, ${JSON.stringify(authors)})...`);
+        const result = await createStory(title, authors);
+        console.log(`[${requestId}] ✅ createStory() completed`);
+        console.log(`[${requestId}] Created story ID:`, result.story.id);
+        console.log(`[${requestId}] Story:`, JSON.stringify(result.story, null, 2));
+        
+        const duration = Date.now() - startTime;
+        console.log(`[${requestId}] ✅ Request completed successfully in ${duration}ms`);
+        return res.status(201).json(result.story);
+      } catch (createError: any) {
+        console.error(`[${requestId}] ❌ Error in POST handler:`, createError);
+        console.error(`[${requestId}] Error type:`, createError?.constructor?.name);
+        console.error(`[${requestId}] Error message:`, createError?.message);
+        console.error(`[${requestId}] Error stack:`, createError?.stack);
+        console.error(`[${requestId}] Error code:`, createError?.code);
+        
+        const status = createError?.message?.includes('required') ? 400 : 500;
+        return res.status(status).json({
+          message: createError?.message || 'Failed to create story',
+          error: createError?.stack,
+          type: createError?.constructor?.name,
+          requestId
+        });
+      }
     }
 
     console.log(`[${requestId}] Method not allowed:`, req.method);

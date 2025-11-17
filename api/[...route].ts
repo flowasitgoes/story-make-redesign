@@ -13,8 +13,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  const path = (req.query.route as string[]) || [];
+  // 从 query.route 或 URL 解析路径
+  let path: string[] = [];
+  if (req.query.route) {
+    path = Array.isArray(req.query.route) ? req.query.route : [req.query.route];
+  } else if (req.url) {
+    // 从 URL 解析：/api/stories -> ['stories']
+    const urlPath = req.url.replace(/^\/api\/?/, '').split('/').filter(Boolean);
+    path = urlPath;
+  }
   const route = path.join('/');
+
+  console.log('API Request:', {
+    method: req.method,
+    url: req.url,
+    path,
+    route,
+    query: req.query
+  });
 
   try {
     // GET /api/stories
